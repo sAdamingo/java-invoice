@@ -1,30 +1,56 @@
 package pl.edu.agh.mwo.invoice;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import pl.edu.agh.mwo.invoice.product.Product;
 
 public class Invoice {
-    private Collection<Product> products;
+    private  Collection<Product> products;
+
+    public Invoice() {
+        this.products = new ArrayList<>();
+    }
 
     public void addProduct(Product product) {
-        // TODO: implement
+        this.products.add(product);
     }
 
     public void addProduct(Product product, Integer quantity) {
-        // TODO: implement
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero!");
+        }
+        for (int i = 0; i < quantity; i++) {
+                this.products.add(product);
+        }
     }
 
+
+
     public BigDecimal getSubtotal() {
-        return null;
+        BigDecimal result = new BigDecimal("0");
+        if (products.isEmpty()) {
+            return result;
+        }
+        BigDecimal sum = products.stream().map(prod -> prod.getPrice()).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return sum;
     }
 
     public BigDecimal getTax() {
-        return null;
+        if (products.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal sum = products.stream().map(prod -> prod.getPrice().multiply(prod.getTaxPercent())).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return sum;
     }
 
     public BigDecimal getTotal() {
-        return null;
+        if (products.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal result = new BigDecimal("0");
+        BigDecimal sum = products.stream().map(prod -> prod.getPriceWithTax()).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return sum;
     }
 }
