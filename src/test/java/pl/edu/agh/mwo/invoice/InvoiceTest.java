@@ -1,6 +1,7 @@
 package pl.edu.agh.mwo.invoice;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -12,6 +13,9 @@ import pl.edu.agh.mwo.invoice.product.DairyProduct;
 import pl.edu.agh.mwo.invoice.product.OtherProduct;
 import pl.edu.agh.mwo.invoice.product.Product;
 import pl.edu.agh.mwo.invoice.product.TaxFreeProduct;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class InvoiceTest {
     private Invoice invoice;
@@ -125,4 +129,47 @@ public class InvoiceTest {
     public void testAddingNullProduct() {
         invoice.addProduct(null);
     }
+
+    @Test
+    public void testInvoiceHasNumber(){
+        int givenNumber = 1;
+        invoice.setNumber(givenNumber);
+        assertEquals(givenNumber,invoice.getNumber());
+    }
+
+    @Test
+    public void testPrintedInvoice(){
+        Invoice testInvoice = new Invoice();
+        testInvoice.setNumber(225);
+        testInvoice.addProduct(new DairyProduct("Kefir",new BigDecimal(3.70)),4);
+        testInvoice.addProduct(new DairyProduct("Masło",new BigDecimal(7.99)),2);
+        testInvoice.addProduct(new OtherProduct("Ziemniak Młody Polski",new BigDecimal(5.5)),3);
+        testInvoice.addProduct(new TaxFreeProduct("Jajka 10szt.",new BigDecimal(13.30)),2);
+        String printedInvoice = testInvoice.printInvoice();
+        System.out.println(printedInvoice);
+        assertTrue(printedInvoice.startsWith("Faktura numer: 225"));
+        assertTrue(printedInvoice.endsWith("Liczba pozycji: 4"));
+        assertTrue(testInvoice.printInvoice().contains("Kefir sztuk: 4 cena: 14.8"));
+        assertTrue(testInvoice.printInvoice().contains("Masło sztuk: 2 cena: 15.98"));
+        assertTrue(testInvoice.printInvoice().contains("Ziemniak Młody Polski sztuk: 3 cena: 16.50"));
+        assertTrue(testInvoice.printInvoice().contains("Jajka 10szt. sztuk: 2 cena: 26.60"));
+    }
+
+    @Test
+    public void testWhenSameProductAddedMultipleTimesOnlyQuantityChanges(){
+        DairyProduct sampleProduct = new DairyProduct("Śmietana",new BigDecimal(3.30));
+
+        invoice.addProduct(sampleProduct);
+        invoice.addProduct(sampleProduct);
+
+        assertEquals(1,invoice.getProducts().size());
+        int elements = invoice.getProducts().get(sampleProduct).intValue();
+
+        assertEquals(2,elements);
+
+        invoice.addProduct(sampleProduct,5);
+        elements = invoice.getProducts().get(sampleProduct).intValue();
+        assertEquals(7,elements);
+    }
+
 }

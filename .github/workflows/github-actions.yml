@@ -1,10 +1,10 @@
 name: CI for Java Invoice
-on: [push]
+on: [ push ]
 jobs:
   test:
     strategy:
-           matrix:
-             node: [8,13,15]
+      matrix:
+        node: [ 8,13,15 ]
     name: Unit tests on Java ${{ matrix.node }}
     runs-on: ubuntu-latest
     steps:
